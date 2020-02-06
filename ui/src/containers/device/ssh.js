@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import '../../lib/xterm.css';
+import { useRequest, endpoints } from '../../api';
 import config from '../../config';
 import storage from '../../storage';
 import segment from '../../lib/segment';
@@ -33,16 +34,17 @@ Terminal.defaultProps = {
 
 const DeviceSsh = ({
   route: {
-    data: { params, device },
+    data: { params },
   },
 }) => {
-  const sshKeys = storage.get('sshKeys');
-  const enableSSHKeys = storage.get('enableSSHKeys', params.project);
-  const selectOptions = sshKeys
-    ? sshKeys.map(({ name, key }) => ({ label: name, value: key }))
-    : null;
-  const [showKeyPopup, setShowKeyPopup] = useState(
-    enableSSHKeys && selectOptions
+  const { data: device } = useRequest(
+    endpoints.device({
+      projectId: params.project,
+      deviceId: params.device,
+    }),
+    {
+      suspense: true,
+    }
   );
 
   const startSSH = privateKey => {
@@ -114,11 +116,20 @@ const DeviceSsh = ({
     conn.connect(options);
   };
 
+  const sshKeys = storage.get('sshKeys');
+  const enableSSHKeys = storage.get('enableSSHKeys', params.project);
+  const selectOptions = sshKeys
+    ? sshKeys.map(({ name, key }) => ({ label: name, value: key }))
+    : null;
+  const [showKeyPopup, setShowKeyPopup] = useState(
+    enableSSHKeys && selectOptions
+  );
+
   useEffect(() => {
-    if (!showKeyPopup) {
+    if (device && !showKeyPopup) {
       startSSH();
     }
-  }, []);
+  }, [device]);
 
   return (
     <>

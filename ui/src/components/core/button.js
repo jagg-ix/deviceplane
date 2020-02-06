@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import styled from 'styled-components';
 import {
   space,
@@ -121,7 +121,7 @@ export const LinkButton = styled(Btn).attrs({
   text-decoration: none;
 `;
 
-const Button = ({ href, title, onClick, ...rest }) => {
+const Button = forwardRef(({ href, title, onClick, ...rest }, ref) => {
   if (href) {
     return (
       <LinkButton {...useLinkProps({ href, onClick })} {...rest}>
@@ -131,11 +131,11 @@ const Button = ({ href, title, onClick, ...rest }) => {
   }
 
   return (
-    <Btn onClick={onClick} {...rest}>
+    <Btn onClick={onClick} ref={ref} {...rest}>
       {title}
     </Btn>
   );
-};
+});
 
 Button.defaultProps = {
   href: null,

@@ -1,6 +1,9 @@
 const uuidv4 = require('uuid/v4');
 
-const capitalize = message => message.replace(/^\w/, c => c.toUpperCase());
+const capitalize = message =>
+  typeof message === 'string'
+    ? message.replace(/^\w/, c => c.toUpperCase())
+    : null;
 
 const randomClassName = () =>
   'rcn_' +

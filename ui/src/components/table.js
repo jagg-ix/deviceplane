@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useTable, useSortBy } from 'react-table';
 import styled from 'styled-components';
 import { useLinkProps } from 'react-navi';
 
 import { Row, Grid, Icon } from './core';
+import Spinner from './spinner';
 
 const A = styled.a`
   overflow-x: hidden;
@@ -81,13 +82,15 @@ const Cell = styled.td`
 const Table = ({
   columns,
   data,
-  onRowSelect,
+  onRowSelect = () => {},
   placeholder,
   rowHref,
   maxHeight,
 }) => {
   const selectable = onRowSelect || rowHref;
-  onRowSelect = onRowSelect || function() {};
+  const loading = !data;
+
+  const tableData = useMemo(() => data || [], [data]);
 
   const {
     getTableProps,
@@ -98,7 +101,7 @@ const Table = ({
   } = useTable(
     {
       columns,
-      data,
+      data: tableData,
     },
     useSortBy
   );
@@ -107,7 +110,7 @@ const Table = ({
     const selection = window.getSelection();
     // Only select row if user is not highlighting text
     if (selection.type !== 'Range') {
-      onRowSelect(data[index]);
+      onRowSelect(tableData[index]);
     }
   };
 
@@ -195,7 +198,8 @@ const Table = ({
           })}
         </TableBody>
       </StyledTable>
-      {rows.length === 0 && (
+      {loading && <Spinner />}
+      {!loading && rows.length === 0 && (
         <Row
           flex={1}
           justifyContent="center"

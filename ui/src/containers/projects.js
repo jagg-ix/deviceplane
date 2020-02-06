@@ -1,15 +1,15 @@
 import React, { useMemo } from 'react';
 
+import { useRequest, endpoints } from '../api';
 import Layout from '../components/layout';
 import Card from '../components/card';
 import Table from '../components/table';
 import { Text } from '../components/core';
 
-const Projects = ({
-  route: {
-    data: { projects },
-  },
-}) => {
+const Projects = () => {
+  const { data } = useRequest(endpoints.projects());
+  const projects = data ? data.map(({ project }) => project) : data;
+
   const columns = useMemo(
     () => [
       {
@@ -31,14 +31,12 @@ const Projects = ({
     ],
     []
   );
-  const tableData = useMemo(() => projects, [projects]);
 
   return (
     <Layout alignItems="center">
       <Card
         title="Projects"
         size="xlarge"
-        maxHeight="100%"
         actions={[
           {
             href: '/projects/create',
@@ -48,7 +46,7 @@ const Projects = ({
       >
         <Table
           columns={columns}
-          data={tableData}
+          data={projects}
           rowHref={({ name }) => `/${name}`}
           placeholder={
             <Text>

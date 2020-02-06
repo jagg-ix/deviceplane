@@ -1,14 +1,19 @@
 import React, { useMemo } from 'react';
 
+import { useRequest, endpoints } from '../../api';
 import Card from '../../components/card';
 import Table from '../../components/table';
 import { Text } from '../../components/core';
 
 const Roles = ({
   route: {
-    data: { params, roles },
+    data: { params },
   },
 }) => {
+  const { data: roles } = useRequest(
+    endpoints.roles({ projectId: params.project })
+  );
+
   const columns = useMemo(
     () => [
       { Header: 'Name', accessor: 'name' },
@@ -16,13 +21,10 @@ const Roles = ({
     ],
     []
   );
-  const tableData = useMemo(() => roles, [roles]);
-
   return (
     <Card
       title="Roles"
       size="xlarge"
-      maxHeight="100%"
       actions={[
         {
           href: `create`,
@@ -32,7 +34,7 @@ const Roles = ({
     >
       <Table
         columns={columns}
-        data={tableData}
+        data={roles}
         rowHref={({ name }) => `/${params.project}/iam/roles/${name}`}
         placeholder={
           <Text>

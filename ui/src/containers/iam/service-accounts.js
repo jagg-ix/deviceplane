@@ -1,14 +1,19 @@
 import React, { useMemo } from 'react';
 
+import { useRequest, endpoints } from '../../api';
 import Card from '../../components/card';
 import Table from '../../components/table';
 import { Text } from '../../components/core';
 
 const ServiceAccounts = ({
   route: {
-    data: { params, serviceAccounts },
+    data: { params },
   },
 }) => {
+  const { data: serviceAccounts } = useRequest(
+    endpoints.serviceAccounts({ projectId: params.project })
+  );
+
   const columns = useMemo(
     () => [
       { Header: 'Name', accessor: 'name' },
@@ -23,13 +28,11 @@ const ServiceAccounts = ({
     ],
     []
   );
-  const tableData = useMemo(() => serviceAccounts, [serviceAccounts]);
 
   return (
     <Card
       title="Service Accounts"
       size="xlarge"
-      maxHeight="100%"
       actions={[
         {
           href: `create`,
@@ -39,7 +42,7 @@ const ServiceAccounts = ({
     >
       <Table
         columns={columns}
-        data={tableData}
+        data={serviceAccounts}
         rowHref={({ name }) =>
           `/${params.project}/iam/service-accounts/${name}`
         }

@@ -23,6 +23,7 @@ const Device = ({ route }) => {
   if (!route) {
     return null;
   }
+
   return (
     <Layout
       alignItems="center"
@@ -30,7 +31,7 @@ const Device = ({ route }) => {
         <Tabs
           content={tabs.map(({ to, title }) => ({
             title,
-            href: `/${route.data.params.project}/devices/${route.data.device.name}/${to}`,
+            href: `/${route.data.params.project}/devices/${route.data.params.device}/${to}`,
           }))}
         />
       }

@@ -1,14 +1,21 @@
 import React, { useMemo } from 'react';
 
+import { useRequest, endpoints } from '../../api';
 import Card from '../../components/card';
 import Table from '../../components/table';
 import { Text } from '../../components/core';
 
 const Members = ({
   route: {
-    data: { params, members },
+    data: { params },
   },
 }) => {
+  const { data: members } = useRequest(
+    endpoints.memberships({
+      projectId: params.project,
+    })
+  );
+
   const columns = useMemo(
     () => [
       { Header: 'Email', accessor: 'user.email' },
@@ -27,18 +34,16 @@ const Members = ({
     ],
     []
   );
-  const tableData = useMemo(() => members, [members]);
 
   return (
     <Card
       title="Members"
       size="xlarge"
       actions={[{ href: 'add', title: 'Add member' }]}
-      maxHeight="100%"
     >
       <Table
         columns={columns}
-        data={tableData}
+        data={members}
         rowHref={({ user: { id } }) => `/${params.project}/iam/members/${id}`}
         placeholder={
           <Text>

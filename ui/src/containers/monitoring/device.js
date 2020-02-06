@@ -241,7 +241,6 @@ const Device = ({
             onClick: () => setShowMetricsForm(true),
           },
         ]}
-        maxHeight="100%"
       >
         <Table
           data={tableData}

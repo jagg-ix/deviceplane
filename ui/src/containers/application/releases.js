@@ -1,15 +1,29 @@
 import React, { useMemo } from 'react';
 import moment from 'moment';
 
+import { useRequest, endpoints } from '../../api';
 import Card from '../../components/card';
 import Table from '../../components/table';
 import { Text } from '../../components/core';
 
 const Releases = ({
   route: {
-    data: { params, application, releases },
+    data: { params },
   },
 }) => {
+  const { data: application } = useRequest(
+    endpoints.application({
+      projectId: params.project,
+      applicationId: params.application,
+    }),
+    { suspense: true }
+  );
+  const { data: releases } = useRequest(
+    endpoints.releases({
+      projectId: params.project,
+      applicationId: params.application,
+    })
+  );
   const columns = useMemo(
     () => [
       {
@@ -43,7 +57,6 @@ const Releases = ({
     ],
     []
   );
-  const tableData = useMemo(() => releases, [releases]);
 
   return (
     <Card
@@ -55,11 +68,10 @@ const Releases = ({
           href: `/${params.project}/applications/${application.name}/releases/create`,
         },
       ]}
-      maxHeight="100%"
     >
       <Table
         columns={columns}
-        data={tableData}
+        data={releases}
         rowHref={({ id }) =>
           `/${params.project}/applications/${application.name}/releases/${id}`
         }

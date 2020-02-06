@@ -24,7 +24,7 @@ const HeaderLink = styled(Link)`
 `;
 
 const Header = ({ children }) => {
-  const isProjectsRoute = useActive('/projects');
+  const isProjectsRoute = useActive('/projects', { exact: false });
   return (
     <Row
       flexDirection={['column', 'column', 'column', 'row']}

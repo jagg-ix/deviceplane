@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 
-import api from '../api';
+import { useRequest, endpoints } from '../api';
 import Layout from '../components/layout';
 import Card from '../components/card';
 import Table from '../components/table';
@@ -25,8 +25,7 @@ const Params = {
 
 const Devices = ({ route }) => {
   const [showFilterDialog, setShowFilterDialog] = useState();
-  const [devices, setDevices] = useState(route.data.devices);
-  const [deviceTotal, setDeviceTotal] = useState();
+  const [queryString, setQueryString] = useState();
   const [filterQuery, setFilterQuery] = useState(
     storage.get('devicesFilter', route.data.params.project) || []
   );
@@ -36,12 +35,23 @@ const Devices = ({ route }) => {
   const [searchInput, setSearchInput] = useState('');
   const [searchFocused, setSearchFocused] = useState();
 
+  const { data: devices, headers } = useRequest(
+    endpoints.devices({
+      projectId: route.data.params.project,
+      queryString,
+    }),
+    {
+      refreshInterval: 3000,
+    }
+  );
+  const deviceTotal = headers && headers.get('total-device-count');
+
   useEffect(() => {
     parseQueryString();
   }, []);
 
   useEffect(() => {
-    queryDevices();
+    updateQueryString();
   }, [filterQuery, searchInput]);
 
   useEffect(() => {
@@ -101,22 +111,8 @@ const Devices = ({ route }) => {
     ],
     [filterQuery]
   );
-  const tableData = useMemo(() => devices, [devices]);
 
-  const fetchDevices = async queryString => {
-    try {
-      const { data, headers } = await api.devices({
-        projectId: route.data.params.project,
-        queryString,
-      });
-      setDeviceTotal(headers['total-device-count']);
-      setDevices(data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const queryDevices = () => {
+  const updateQueryString = () => {
     const query = [];
 
     if (orderedColumn) {
@@ -137,7 +133,7 @@ const Devices = ({ route }) => {
       window.history.replaceState(null, null, window.location.pathname);
     }
 
-    fetchDevices(queryString);
+    setQueryString(queryString);
   };
 
   const removeFilter = index => {
@@ -278,7 +274,6 @@ const Devices = ({ route }) => {
             href: `/${route.data.params.project}/devices/register`,
           },
         ]}
-        maxHeight="100%"
       >
         {filterQuery.length > 0 && (
           <Row marginBottom={4}>
@@ -295,7 +290,7 @@ const Devices = ({ route }) => {
         )}
         <Table
           columns={columns}
-          data={tableData}
+          data={devices}
           rowHref={({ name }) =>
             `/${route.data.params.project}/devices/${name}`
           }

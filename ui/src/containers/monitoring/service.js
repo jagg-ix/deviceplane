@@ -346,7 +346,6 @@ const Service = ({
           },
         ]}
         disabled={!(selection && selection.service)}
-        maxHeight="100%"
       >
         <Table
           data={tableData}

@@ -4,7 +4,7 @@ import { useNavigation } from 'react-navi';
 import * as yup from 'yup';
 import moment from 'moment';
 
-import api from '../../api';
+import api, { useRequest, endpoints } from '../../api';
 import utils from '../../utils';
 import validators from '../../validators';
 import Card from '../../components/card';
@@ -31,9 +31,21 @@ const validationSchema = yup.object().shape({
 
 const ServiceAccount = ({
   route: {
-    data: { params, serviceAccount, roles },
+    data: { params },
   },
 }) => {
+  const { data: serviceAccount } = useRequest(
+    endpoints.serviceAccount({
+      projectId: params.project,
+      serviceId: params.service,
+    }),
+    { suspense: true }
+  );
+  const { data: roles } = useRequest(
+    endpoints.roles({ projectId: params.project }),
+    { suspense: true }
+  );
+
   const { register, handleSubmit, errors, formState, control } = useForm({
     validationSchema,
     defaultValues: {
