@@ -140,6 +140,7 @@ const Button = forwardRef(({ href, title, onClick, ...rest }, ref) => {
 Button.defaultProps = {
   href: null,
   title: '',
+  type: 'button',
 };
 
 export default Button;
